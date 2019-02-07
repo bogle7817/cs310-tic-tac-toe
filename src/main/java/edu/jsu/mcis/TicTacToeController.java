@@ -1,8 +1,13 @@
 package edu.jsu.mcis;
 
-public class TicTacToeController {
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import javax.swing.*;
 
-    private final TicTacToeModel model;
+public class TicTacToeController implements ActionListener{
+
+    public final TicTacToeModel model;
     private final TicTacToeView view;
     
     /* CONSTRUCTOR */
@@ -12,40 +17,45 @@ public class TicTacToeController {
         /* Initialize model, view, and width */
 
         model = new TicTacToeModel(width);
-        view = new TicTacToeView();
+        view = new TicTacToeView(this,width);
         
     }
 
-    public void start() {
+    public String getMarkAsString(int row, int col) {        
+        return (model.getMark(row, col).toString());        
+    }
     
-        /* MAIN LOOP (repeats until game is over) */
+    public TicTacToeView getView() {        
+        return view;        
+    }
 
-        /* Display the board using the View's "showBoard()", then use
-           "getNextMove()" to get the next move from the player.  Enter
-           the move (using the Model's "makeMark()", or display an error
-           using the View's "showInputError()" if the move is invalid. */
+    @Override
+    public void actionPerformed(ActionEvent event) {
+        
+        if (event.getSource() instanceof JButton) {
+            
+            JButton button = (JButton) (event.getSource());
 
-        boolean done = false;
-        while (done == false) {
+            String fullButtonName = button.getName();
+            String replaceBN = fullButtonName.replaceFirst("Square", "");
+            String[] getRowCol = replaceBN.split("");
 
-            view.showBoard(model.toString());
-            TicTacToeMove nextMove = view.getNextMove(model.isXTurn());
-            if (model.makeMark(nextMove.getRow(), nextMove.getCol()) == true) {
+            boolean gameOver = false;
+            int row, col;
+            row = Integer.parseInt(getRowCol[0]);
+            col = Integer.parseInt(getRowCol[1]);
 
-            }
-            else {
-                view.showInputError();
-            }
+            model.makeMark(row,col);
+            
+            view.updateSquares();
+
             if (model.isGameover() == true) {
-            done = true;
+                gameOver = true;
+                view.disableSquares();
+                view.showResult(model.getResult().toString());
             }
         }
-        /* After the game is over, show the final board and the winner */
 
-        view.showBoard(model.toString());
 
-        view.showResult(model.getResult().toString());
-        
     }
-
 }
